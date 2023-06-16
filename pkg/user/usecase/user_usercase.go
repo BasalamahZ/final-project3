@@ -12,7 +12,7 @@ import (
 type UsecaseInterfaceUser interface {
 	Register(req dto.UserRequest) (*dto.UserResponse, error)
 	Login(req dto.LoginRequest) (model.User, error)
-	UpdateUserById(userId int, input dto.UserRequest) (model.User, error)
+	UpdateUserById(userId int, input model.User) (*dto.UserResponses, error)
 	DeleteUserById(userId int) error
 }
 
@@ -76,17 +76,24 @@ func (u *usecaseUser) Login(req dto.LoginRequest) (model.User, error) {
 }
 
 // UpdateUserById implements UsecaseInterfaceUser
-func (u *usecaseUser) UpdateUserById(userId int, input dto.UserRequest) (model.User, error) {
+func (u *usecaseUser) UpdateUserById(userId int, input model.User) (*dto.UserResponses, error) {
 	payload := model.User{
 		Fullname: input.Fullname,
 		Email:    input.Email,
 	}
 	user, err := u.repository.UpdateUserById(userId, payload)
 	if err != nil {
-		return user, err
+		return nil, err
+	} 
+
+	res := &dto.UserResponses{
+		Id:        input.Id,
+		Fullname:  user.Fullname,
+		Email:     user.Email,
+		UpdatedAt: user.UpdatedAt,
 	}
 
-	return user, nil
+	return res, nil
 }
 
 // DeleleUserById implements UsecaseInterfaceUser

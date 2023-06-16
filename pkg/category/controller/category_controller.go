@@ -3,6 +3,7 @@ package controller
 import (
 	"final-project3/pkg/category/dto"
 	"final-project3/pkg/category/usecase"
+	"final-project3/utils/helpers"
 	"net/http"
 	"strconv"
 
@@ -22,7 +23,8 @@ func InitControllerCategory(uc usecase.UsecaseInterfaceCategory) *CategoryHTTPCo
 func (uc *CategoryHTTPController) CreateNewCategory(c *gin.Context) {
 	var req dto.CategoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "status": http.StatusBadRequest})
+		errors := helpers.FormatError(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
 		return
 	}
 
@@ -54,10 +56,8 @@ func (uc *CategoryHTTPController) UpdateCategoryById(c *gin.Context) {
 	}
 	var req dto.CategoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "something wrong",
-		})
+		errors := helpers.FormatError(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
 		return
 	}
 

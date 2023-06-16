@@ -14,5 +14,5 @@ type Task struct {
 	CategoryId  int        `json:"category_id"`
 	CreatedAt   time.Time  `json:"created_at" gorm:"autoCreateTime:true"`
 	UpdatedAt   time.Time  `json:"updated_at" gorm:"autoUpdateTime:true"`
-	User        model.User `json:"User"  gorm:"foreignKey:Id"`
+	User        model.User `json:"User"  gorm:"foreignKey:Id; constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }

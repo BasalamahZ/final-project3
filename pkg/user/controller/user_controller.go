@@ -2,7 +2,9 @@ package controller
 
 import (
 	"final-project3/pkg/user/dto"
+	"final-project3/pkg/user/model"
 	"final-project3/pkg/user/usecase"
+	"final-project3/utils/helpers"
 	jwt_local "final-project3/utils/jwt"
 	"net/http"
 	"strconv"
@@ -24,7 +26,8 @@ func InitControllerUser(uc usecase.UsecaseInterfaceUser) *UserHTTPController {
 func (uc *UserHTTPController) Register(c *gin.Context) {
 	var req dto.UserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "status": http.StatusBadRequest})
+		errors := helpers.FormatError(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
 		return
 	}
 
@@ -33,14 +36,6 @@ func (uc *UserHTTPController) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// res := ConvertToUserResponse(user)
-
-	// c.JSON(http.StatusCreated, gin.H{
-	// 	"id" : user.Id,
-	// 	"full_name" : user.Fullname,
-	// 	"email" : user.Email,
-	// 	"created_at" : user.CreatedAt,
-	// })
 
 	c.JSON(http.StatusCreated, user)
 }
@@ -48,13 +43,14 @@ func (uc *UserHTTPController) Register(c *gin.Context) {
 func (uc *UserHTTPController) Login(c *gin.Context) {
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "status": http.StatusBadRequest})
+		errors := helpers.FormatError(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
 		return
 	}
 
 	user, err := uc.usecase.Login(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "status": http.StatusBadRequest})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -80,12 +76,9 @@ func (uc *UserHTTPController) UpdateUserById(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid Parsing User ID", "status": http.StatusBadRequest})
 		return
 	}
-	var input dto.UserRequest
+	var input model.User
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "something wrong",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "errors"})
 		return
 	}
 

@@ -6,7 +6,7 @@ import (
 )
 
 type CategoryRequest struct {
-	Type string `json:"type"`
+	Type string `json:"type" binding:"required"`
 }
 
 type CategoryResponse struct {

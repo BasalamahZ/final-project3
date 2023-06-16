@@ -25,8 +25,8 @@ func InitHttpRoute(g *gin.Engine, db *gorm.DB) {
 	userGroup.POST("/login", userController.Login)
 	userGroup.Use(auth.MiddlewareLogin())
 	{
-		userGroup.PUT("/update-account", userController.UpdateUserById)
-		userGroup.DELETE("/delete-account", userController.DeleteUserById)
+		userGroup.PUT("/update-account/:id", userController.UpdateUserById)
+		userGroup.DELETE("/delete-account/:id", userController.DeleteUserById)
 	}
 
 	categoryController := category.InitHttpCategoryController(db)
