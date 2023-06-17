@@ -2,12 +2,10 @@ package controller
 
 import (
 	"final-project3/pkg/user/dto"
-	"final-project3/pkg/user/model"
 	"final-project3/pkg/user/usecase"
 	"final-project3/utils/helpers"
 	jwt_local "final-project3/utils/jwt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -37,7 +35,12 @@ func (uc *UserHTTPController) Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, user)
+	c.JSON(http.StatusCreated, gin.H{
+		"id":         user.Id,
+		"full_name":  user.Fullname,
+		"email":      user.Email,
+		"created_at": user.CreatedAt,
+	})
 }
 
 func (uc *UserHTTPController) Login(c *gin.Context) {
@@ -57,6 +60,7 @@ func (uc *UserHTTPController) Login(c *gin.Context) {
 	access_token, err := jwt_local.GenerateNewToken(jwt.MapClaims{
 		"id":    user.Id,
 		"email": user.Email,
+		"role":  user.Role,
 	})
 
 	if err != nil {
@@ -70,17 +74,14 @@ func (uc *UserHTTPController) Login(c *gin.Context) {
 }
 
 func (uc *UserHTTPController) UpdateUserById(c *gin.Context) {
-	idString := c.Param("id")
-	userId, err := strconv.Atoi(idString)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid Parsing User ID", "status": http.StatusBadRequest})
-		return
-	}
-	var input model.User
+	var input dto.EditUser
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "errors"})
 		return
 	}
+
+	userInfo := c.MustGet("user_info").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
 
 	user, err := uc.usecase.UpdateUserById(userId, input)
 	if err != nil {
@@ -92,18 +93,18 @@ func (uc *UserHTTPController) UpdateUserById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, gin.H{
+		"id":         user.Id,
+		"full_name":  user.Fullname,
+		"email":      user.Email,
+		"updated_at": user.UpdatedAt,
+	})
 }
 
 func (uc *UserHTTPController) DeleteUserById(c *gin.Context) {
-
-	idString := c.Param("id")
-	userId, err := strconv.Atoi(idString)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid Parsing Country ID", "status": http.StatusBadRequest})
-		return
-	}
-	err = uc.usecase.DeleteUserById(userId)
+	userInfo := c.MustGet("user_info").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+	err := uc.usecase.DeleteUserById(userId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,

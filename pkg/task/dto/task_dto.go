@@ -21,4 +21,18 @@ type TaskResponse struct {
 	CategoryId  int       `json:"category_id"`
 	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime:true"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime:true"`
+	User        UserData  `json:"User"`
+}
+
+type UserData struct {
+	Id        int    `json:"id"`
+	Email     string `json:"email"`
+	Fullname string `json:"full_name"`
+}
+
+type EditTask struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Status      bool  `json:"status"`
+	CategoryId  int    `json:"category_id"`
 }

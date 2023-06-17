@@ -24,19 +24,24 @@ func InitHttpRoute(g *gin.Engine, db *gorm.DB) {
 	userGroup.POST("/register", userController.Register)
 	userGroup.POST("/login", userController.Login)
 	userGroup.Use(auth.MiddlewareLogin())
+	userGroup.Use(auth.AuthenticationUserId())
 	{
-		userGroup.PUT("/update-account/:id", userController.UpdateUserById)
-		userGroup.DELETE("/delete-account/:id", userController.DeleteUserById)
+		userGroup.PUT("/update-account", userController.UpdateUserById)
+		userGroup.DELETE("/delete-account", userController.DeleteUserById)
 	}
 
 	categoryController := category.InitHttpCategoryController(db)
 	categoryGroup := g.Group("categories")
 	categoryGroup.Use(auth.MiddlewareLogin())
 	{
-		categoryGroup.POST("/", categoryController.CreateNewCategory)
 		categoryGroup.GET("/", categoryController.GetAllCategory)
-		categoryGroup.PATCH("/:categoryId", categoryController.UpdateCategoryById)
-		categoryGroup.DELETE("/:categoryId", categoryController.DeleteCategoryById)
+
+		categoryGroup.Use(auth.AuthorizationAccess())
+		{
+			categoryGroup.POST("/", categoryController.CreateNewCategory)
+			categoryGroup.PATCH("/:categoryId", categoryController.UpdateCategoryById)
+			categoryGroup.DELETE("/:categoryId", categoryController.DeleteCategoryById)
+		}
 	}
 
 	taskController := task.InitHttpTaskController(db)
@@ -45,6 +50,7 @@ func InitHttpRoute(g *gin.Engine, db *gorm.DB) {
 	{
 		taskGroup.POST("/", taskController.CreateNewTask)
 		taskGroup.GET("/", taskController.GetAllTask)
+		// taskGroup.Use(auth.AuthenticationId())
 		taskGroup.PUT("/:taskId", taskController.UpdateTaskById)
 		taskGroup.PATCH("/update-status/:taskId", taskController.UpdateStatusByTaskId)
 		taskGroup.PATCH("/update-category/:taskId", taskController.UpdateCategoryByTaskId)

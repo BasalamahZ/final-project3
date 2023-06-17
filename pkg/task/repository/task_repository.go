@@ -10,7 +10,7 @@ type RepositoryInterfaceTask interface {
 	CreateNewTask(task model.Task) (model.Task, error)
 	GetAllTask() ([]model.Task, error)
 	GetTaskById(taskId int) (model.Task, error)
-	UpdateTaskById(taskId int, task model.Task) (model.Task, error)
+	UpdateTaskById(task model.Task) (model.Task, error)
 	DeleteTaskById(taskId int) error
 }
 
@@ -55,8 +55,8 @@ func (r *repositoryTask) GetTaskById(taskId int) (model.Task, error) {
 }
 
 // UpdateTaskById implements RepositoryInterfaceTask
-func (r *repositoryTask) UpdateTaskById(taskId int, task model.Task) (model.Task, error) {
-	if err := r.db.Table("tasks").Where("id = ?", taskId).Updates(&task).Error; err != nil {
+func (r *repositoryTask) UpdateTaskById(task model.Task) (model.Task, error) {
+	if err := r.db.Table("tasks").Save(&task).Error; err != nil {
 		return task, err
 	}
 

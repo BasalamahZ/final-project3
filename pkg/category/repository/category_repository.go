@@ -10,7 +10,7 @@ type RepositoryInterfaceCategory interface {
 	CreateNewCategory(category model.Category) (model.Category, error)
 	GetAllCategory() ([]model.Category, error)
 	GetCategoryById(CategoryId int) (model.Category, error)
-	UpdateCategoryById(categoryId int, category model.Category) (model.Category, error)
+	UpdateCategoryById(category model.Category) (model.Category, error)
 	DeleteCategoryById(categoryId int) error
 }
 
@@ -54,8 +54,8 @@ func (r *repositoryCategory) GetCategoryById(categoryId int) (model.Category, er
 }
 
 // UpdateCategoryById implements RepositoryInterfaceCategory
-func (r *repositoryCategory) UpdateCategoryById(categoryId int, category model.Category) (model.Category, error) {
-	if err := r.db.Table("categories").Where("id = ?", categoryId).Updates(&category).Error; err != nil {
+func (r *repositoryCategory) UpdateCategoryById(category model.Category) (model.Category, error) {
+	if err := r.db.Table("categories").Save(&category).Error; err != nil {
 		return category, err
 	}
 

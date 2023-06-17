@@ -2,6 +2,7 @@ package controller
 
 import (
 	"final-project3/pkg/category/dto"
+	"final-project3/pkg/category/model"
 	"final-project3/pkg/category/usecase"
 	"final-project3/utils/helpers"
 	"net/http"
@@ -34,7 +35,11 @@ func (uc *CategoryHTTPController) CreateNewCategory(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, category)
+	c.JSON(http.StatusCreated, gin.H{
+		"id":         category.Id,
+		"type":       category.Type,
+		"created_at": category.CreatedAt,
+	})
 }
 
 func (uc *CategoryHTTPController) GetAllCategory(c *gin.Context) {
@@ -44,7 +49,13 @@ func (uc *CategoryHTTPController) GetAllCategory(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, categories)
+	var res []dto.CategoryResponse
+	for _, category := range categories {
+		temp := ConvertToCategoryResponse(category)
+		res = append(res, temp)
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 func (uc *CategoryHTTPController) UpdateCategoryById(c *gin.Context) {
@@ -71,7 +82,11 @@ func (uc *CategoryHTTPController) UpdateCategoryById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, category)
+	c.JSON(http.StatusOK, gin.H{
+		"id":         category.Id,
+		"type":       category.Type,
+		"updated_at": category.UpdatedAt,
+	})
 }
 
 func (uc *CategoryHTTPController) DeleteCategoryById(c *gin.Context) {
@@ -95,4 +110,27 @@ func (uc *CategoryHTTPController) DeleteCategoryById(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Category has been successfully deleted",
 	})
+}
+
+func ConvertToCategoryResponse(category model.Category) dto.CategoryResponse {
+	var tasks []dto.TaskData
+	for _, task := range category.Tasks {
+		tasks = append(tasks, dto.TaskData{
+			Id:          task.Id,
+			Title:       task.Title,
+			Description: task.Description,
+			UserId:      task.UserId,
+			CategoryId:  task.CategoryId,
+			CreatedAt:   task.CreatedAt,
+			UpdatedAt:   task.UpdatedAt,
+		})
+	}
+
+	return dto.CategoryResponse{
+		Id:        category.Id,
+		Type:      category.Type,
+		CreatedAt: category.CreatedAt,
+		UpdatedAt: category.UpdatedAt,
+		Tasks:     tasks,
+	}
 }

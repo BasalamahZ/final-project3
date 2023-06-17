@@ -23,13 +23,16 @@ func InitControllerTask(uc usecase.UsecaseInterfaceTask) *TaskHTTPController {
 
 func (uc *TaskHTTPController) CreateNewTask(c *gin.Context) {
 	var req dto.TaskRequest
+	
 	if err := c.ShouldBindJSON(&req); err != nil {
 		errors := helpers.FormatError(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
 		return
 	}
+
 	userInfo := c.MustGet("user_info").(jwt.MapClaims)
 	userId := int(userInfo["id"].(float64))
+
 	newReq := dto.TaskRequest{
 		Title:       req.Title,
 		Description: req.Description,
@@ -43,7 +46,15 @@ func (uc *TaskHTTPController) CreateNewTask(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, task)
+	c.JSON(http.StatusCreated, gin.H{
+		"id":          task.Id,
+		"title":       task.Title,
+		"description": task.Description,
+		"status":      task.Status,
+		"user_id":     task.UserId,
+		"category_id": task.CategoryId,
+		"created_at":  task.CreatedAt,
+	})
 }
 
 func (uc *TaskHTTPController) GetAllTask(c *gin.Context) {
@@ -58,12 +69,12 @@ func (uc *TaskHTTPController) GetAllTask(c *gin.Context) {
 
 func (uc *TaskHTTPController) UpdateTaskById(c *gin.Context) {
 	idString := c.Param("taskId")
+	var req dto.EditTask
 	taskId, err := strconv.Atoi(idString)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid Parsing Task ID", "status": http.StatusBadRequest})
 		return
 	}
-	var req dto.TaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		errors := helpers.FormatError(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
@@ -80,22 +91,28 @@ func (uc *TaskHTTPController) UpdateTaskById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, gin.H{
+		"id":          task.Id,
+		"title":       task.Title,
+		"description": task.Description,
+		"status":      task.Status,
+		"user_id":     task.UserId,
+		"category_id": task.CategoryId,
+		"updated_at":  task.UpdatedAt,
+	})
 }
 
 func (uc *TaskHTTPController) UpdateStatusByTaskId(c *gin.Context) {
 	idString := c.Param("taskId")
+	var req dto.EditTask
 	taskId, err := strconv.Atoi(idString)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid Parsing Task ID", "status": http.StatusBadRequest})
 		return
 	}
-	var req dto.TaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "something wrong",
-		})
+		errors := helpers.FormatError(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
 		return
 	}
 
@@ -109,22 +126,28 @@ func (uc *TaskHTTPController) UpdateStatusByTaskId(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, gin.H{
+		"id":          task.Id,
+		"title":       task.Title,
+		"description": task.Description,
+		"status":      task.Status,
+		"user_id":     task.UserId,
+		"category_id": task.CategoryId,
+		"updated_at":  task.UpdatedAt,
+	})
 }
 
 func (uc *TaskHTTPController) UpdateCategoryByTaskId(c *gin.Context) {
 	idString := c.Param("taskId")
+	var req dto.EditTask
 	taskId, err := strconv.Atoi(idString)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid Parsing Task ID", "status": http.StatusBadRequest})
 		return
 	}
-	var req dto.TaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "something wrong",
-		})
+		errors := helpers.FormatError(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
 		return
 	}
 
@@ -138,7 +161,15 @@ func (uc *TaskHTTPController) UpdateCategoryByTaskId(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, gin.H{
+		"id":          task.Id,
+		"title":       task.Title,
+		"description": task.Description,
+		"status":      task.Status,
+		"user_id":     task.UserId,
+		"category_id": task.CategoryId,
+		"updated_at":  task.UpdatedAt,
+	})
 }
 
 func (uc *TaskHTTPController) DeleteTaskById(c *gin.Context) {

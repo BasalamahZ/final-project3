@@ -47,7 +47,7 @@ func (u *usecaseCategory) CreateNewCategory(req dto.CategoryRequest) (model.Cate
 func (u *usecaseCategory) GetAllCategory() ([]model.Category, error) {
 	categories, err := u.repository.GetAllCategory()
 	if err != nil {
-		return categories, err
+		return nil, err
 	}
 
 	return categories, nil
@@ -55,15 +55,16 @@ func (u *usecaseCategory) GetAllCategory() ([]model.Category, error) {
 
 // UpdateCategoryById implements UsecaseInterfaceCategory
 func (u *usecaseCategory) UpdateCategoryById(categoryId int, input dto.CategoryRequest) (model.Category, error) {
-	payload := model.Category{
-		Type: input.Type,
-	}
-	category, err := u.repository.UpdateCategoryById(categoryId, payload)
+	category, err := u.repository.GetCategoryById(categoryId)
 	if err != nil {
 		return category, err
 	}
 
-	return category, nil
+	if input.Type != "" {
+		category.Type = input.Type
+	}
+
+	return u.repository.UpdateCategoryById(category)
 }
 
 // DeleteCategoryById implements UsecaseInterfaceCategory

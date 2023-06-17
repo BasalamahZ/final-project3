@@ -10,9 +10,9 @@ import (
 )
 
 type UsecaseInterfaceUser interface {
-	Register(req dto.UserRequest) (*dto.UserResponse, error)
+	Register(req dto.UserRequest) (*model.User, error)
 	Login(req dto.LoginRequest) (model.User, error)
-	UpdateUserById(userId int, input model.User) (*dto.UserResponses, error)
+	UpdateUserById(userId int, input dto.EditUser) (model.User, error)
 	DeleteUserById(userId int) error
 }
 
@@ -27,7 +27,7 @@ func InitUsecaseUser(repository repository.RepositoryInterfaceUser) UsecaseInter
 }
 
 // Register implements UsecaseInterfaceUser
-func (u *usecaseUser) Register(req dto.UserRequest) (*dto.UserResponse, error) {
+func (u *usecaseUser) Register(req dto.UserRequest) (*model.User, error) {
 	isUserExist, _ := u.repository.GetUserByEmail(req.Email)
 
 	if isUserExist.Id != 0 {
@@ -43,21 +43,15 @@ func (u *usecaseUser) Register(req dto.UserRequest) (*dto.UserResponse, error) {
 		Fullname: req.Fullname,
 		Email:    req.Email,
 		Password: string(hashedPassword),
-		Role:     "member",
 	}
+
 	newUser, err := u.repository.CreateNewUser(payload)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &dto.UserResponse{
-		Id:        newUser.Id,
-		Fullname:  newUser.Fullname,
-		Email:     newUser.Email,
-		CreatedAt: newUser.CreatedAt,
-	}
 
-	return res, nil
+	return &newUser, nil
 }
 
 // Login implements UsecaseInterfaceUser
@@ -76,24 +70,21 @@ func (u *usecaseUser) Login(req dto.LoginRequest) (model.User, error) {
 }
 
 // UpdateUserById implements UsecaseInterfaceUser
-func (u *usecaseUser) UpdateUserById(userId int, input model.User) (*dto.UserResponses, error) {
-	payload := model.User{
-		Fullname: input.Fullname,
-		Email:    input.Email,
-	}
-	user, err := u.repository.UpdateUserById(userId, payload)
+func (u *usecaseUser) UpdateUserById(userId int, input dto.EditUser) (model.User, error) {
+	user, err := u.repository.GetUserById(userId)
 	if err != nil {
-		return nil, err
+		return user, err
 	} 
 
-	res := &dto.UserResponses{
-		Id:        input.Id,
-		Fullname:  user.Fullname,
-		Email:     user.Email,
-		UpdatedAt: user.UpdatedAt,
+	if input.Fullname != "" {
+		user.Fullname = input.Fullname
 	}
-
-	return res, nil
+	
+	if input.Email != "" {
+		user.Email = input.Email
+	}
+	
+	return u.repository.UpdateUserById(user)
 }
 
 // DeleleUserById implements UsecaseInterfaceUser
