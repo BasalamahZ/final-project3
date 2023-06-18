@@ -69,10 +69,9 @@ func (u *usecaseCategory) UpdateCategoryById(categoryId int, input dto.CategoryR
 
 // DeleteCategoryById implements UsecaseInterfaceCategory
 func (u *usecaseCategory) DeleteCategoryById(categoryId int) error {
-	err := u.repository.DeleteCategoryById(categoryId)
+	_, err := u.repository.GetCategoryById(categoryId)
 	if err != nil {
 		return err
 	}
-
-	return nil
+	return u.repository.DeleteCategoryById(categoryId)
 }

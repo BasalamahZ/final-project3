@@ -89,10 +89,10 @@ func (u *usecaseUser) UpdateUserById(userId int, input dto.EditUser) (model.User
 
 // DeleleUserById implements UsecaseInterfaceUser
 func (u *usecaseUser) DeleteUserById(userId int) error {
-	err := u.repository.DeleteUserById(userId)
+	_, err := u.repository.GetUserById(userId)
 	if err != nil {
-		return err
-	}
+		return  err
+	} 
 
-	return nil
+	return u.repository.DeleteUserById(userId)
 }

@@ -128,10 +128,9 @@ func (u *usecaseTask) UpdateCategoryByTaskId(taskId int, input dto.EditTask) (mo
 
 // DeleteTaskById implements UsecaseInterfaceTask
 func (u *usecaseTask) DeleteTaskById(taskId int) error {
-	err := u.repository.DeleteTaskById(taskId)
+	_, err := u.repository.GetTaskById(taskId)
 	if err != nil {
-		return err
+		return  err
 	}
-
-	return nil
+	return u.repository.DeleteTaskById(taskId)
 }
